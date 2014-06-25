@@ -94,7 +94,7 @@ define(
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.fillStyle = "#AAA";
+    ctx.fillStyle = "#FF0000";
     ctx.stokeStyle = "#444";
     drawCircle(ctx, 0, 0, cx * 0.95, 3);
 

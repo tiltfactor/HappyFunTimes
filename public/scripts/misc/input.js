@@ -97,6 +97,16 @@ define(['./misc'], function(Misc) {
   var getDirectionInfo = function(direction) {
     return dirInfo[direction];
   };
+  
+  var getAbsoluteCoordinates = (function(window, undefined) {
+    return function(reference, event) {
+      // Use absolute coordinates
+     // var pos = Misc.getAbsolutePosition(reference);
+      var x = event.pageX //- pos.x;
+      var y = event.pageY //- pos.y;
+      return { x: x, y: y };
+    };
+  }());
 
   var getRelativeCoordinates = (function(window, undefined) {
     return function(reference, event) {
@@ -304,6 +314,7 @@ define(['./misc'], function(Misc) {
     kASWDKeys: kASWDKeys,
     kASWDPadOnly: kASWDPadOnly,
     getRelativeCoordinates: getRelativeCoordinates,
+    getAbsoluteCoordinates: getAbsoluteCoordinates,
     setupControllerKeys: setupControllerKeys,
     setupKeyboardDPadKeys: setupKeyboardDPadKeys,
     setupKeys: setupKeys,

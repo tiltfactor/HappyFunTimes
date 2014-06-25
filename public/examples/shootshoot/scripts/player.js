@@ -30,7 +30,7 @@
  */
 "use strict";
 
-define(['../../scripts/2d', './shot'], function(M2D, Shot) {
+define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], function(M2D, Shot, GameButton) {
   /**
    * Player represnt a player in the game.
    * @constructor
@@ -43,15 +43,19 @@ define(['../../scripts/2d', './shot'], function(M2D, Shot) {
       services.entitySystem.addEntity(this);
       services.drawSystem.addEntity(this);
 
+	  this.abutton = new GameButton(services.entitySystem);
       this.netPlayer = netPlayer;
       this.position = [x, y];
       this.color = services.misc.randCSSColor();
+      this.sizeW = 16;
+      this.sizeH = 16;
 
       netPlayer.addEventListener('disconnect', Player.prototype.handleDisconnect.bind(this));
       netPlayer.addEventListener('pad', Player.prototype.handlePadMsg.bind(this));
       netPlayer.addEventListener('setName', Player.prototype.handleNameMsg.bind(this));
       netPlayer.addEventListener('setColor', Player.prototype.handleSetColorMsg.bind(this));
       netPlayer.addEventListener('busy', Player.prototype.handleBusyMsg.bind(this));
+      netPlayer.addEventListener('abutton', Player.prototype.handleAButtonMsg.bind(this));
 
       this.name = name;
       this.pads = [-1, -1];
@@ -59,7 +63,7 @@ define(['../../scripts/2d', './shot'], function(M2D, Shot) {
       this.shootTimer = 0;
       this.shots = [];
 
-      this.setState('idle');
+      this.setState('color');
     };
   }());
 
@@ -90,14 +94,26 @@ define(['../../scripts/2d', './shot'], function(M2D, Shot) {
     this.pads[msg.pad] = msg.dir;
   };
 
+
+  Player.prototype.handleAButtonMsg = function(msg) {
+    this.abutton.setState(msg.abutton);
+    //this.name=msg.abutton;
+     this.sizeW *= 2;
+     this.sizeH *= 2;
+     this.netPlayer.sendCmd('score',{abcdef: "#FFFFFF"});
+  };
+
   Player.prototype.handleNameMsg = function(msg) {
     if (!msg.name) {
       this.sendCmd('setName', {
         name: this.name
       });
     } else {
+   // if (msg.name=='test'){
+   // this.name = 'Sukie';
+   // } else {
       this.name = msg.name.replace(/[<>]/g, '');
-    }
+      }
   };
 
   Player.prototype.handleSetColorMsg = function(msg) {
@@ -135,6 +151,13 @@ define(['../../scripts/2d', './shot'], function(M2D, Shot) {
       return;
     }
     this.updatePosition();
+  };
+  
+  Player.prototype.state_color = function() 
+  {
+	  this.color = "#00FF00";
+      this.setState('idle');
+      return;
   };
 
   Player.prototype.shoot = function(direction) {
@@ -175,7 +198,7 @@ define(['../../scripts/2d', './shot'], function(M2D, Shot) {
 
   Player.prototype.draw = function(ctx) {
     ctx.fillStyle = this.color;
-    ctx.fillRect(this.position[0], this.position[1], 16, 16);
+    ctx.fillRect(this.position[0], this.position[1], this.sizeW, this.sizeH);
     ctx.fillText(this.name, this.position[0] + 10, this.position[1] - 8);
   };
 

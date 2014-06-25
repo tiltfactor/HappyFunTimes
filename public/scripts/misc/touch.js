@@ -335,11 +335,11 @@ define(
       console.log("button: " + buttonInfo.element.id + ", " + buttonInfo.numPointerIds);
     };
 
-    var addPointerId = function(buttonInfo, pointerId) {
+    var addPointerId = function(buttonInfo, pointerId, pointerLocation) {
       if (!buttonInfo.pointerIds[pointerId]) {
         buttonInfo.pointerIds[pointerId] = true;
         ++buttonInfo.numPointerIds;
-        buttonInfo.callback({pressed: true});
+        buttonInfo.callback({pressed: true, x: pointerLocation.x, y:pointerLocation.y});
       }
     };
 
@@ -356,14 +356,21 @@ define(
     };
 
     var handleButtonDown = function(e, buttonInfo) {
-      addPointerId(buttonInfo, e.pointerId);
+    	var refElement = buttonInfo.referenceElement;
+    	console.log(Input.getAbsoluteCoordinates(refElement, e));
+     	addPointerId(buttonInfo, e.pointerId, Input.getAbsoluteCoordinates(refElement, e));
+      
     };
 
     var handleButtonMove = function(e, buttonInfo) {
-      addPointerId(buttonInfo, e.pointerId);
+      //addPointerId(buttonInfo, e.pointerId);
     };
 
     var handleButtonOut = function(e, buttonInfo) {
+      //removePointerId(buttonInfo, e.pointerId);
+    };
+    
+    var handleButtonUp = function(e, buttonInfo) {
       removePointerId(buttonInfo, e.pointerId);
     };
 
@@ -382,7 +389,7 @@ define(
       }(buttonInfo), false);
       elem.addEventListener('pointerup', function(buttonInfo) {
         return function(e) {
-          handleButtonOut(e, buttonInfo);
+          handleButtonUp(e, buttonInfo);
         }
       }(buttonInfo), false);
       elem.addEventListener('pointerout', function(buttonInfo) {
@@ -396,6 +403,9 @@ define(
   return {
     setupVirtualDPads: setupVirtualDPads,
     setupButtons: setupButtons,
+    
+    
+    
   };
 });
 

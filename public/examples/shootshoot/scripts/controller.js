@@ -34,6 +34,7 @@ var main = function(
     CommonUI,
     GameClient,
     DPad,
+    AnswerButton,
     Input,
     Misc,
     MobileHacks,
@@ -41,7 +42,7 @@ var main = function(
     AudioManager) {
   var g_client;
   var g_audioManager;
-
+  var g_abutton = false;
   var globals = {
     debug: false,
   };
@@ -56,58 +57,186 @@ var main = function(
     gameId: "shootshoot",
   });
 
-  function handleScore() {
+  function handleNewQuestion(msg) 
+  {
+  console.log("IT'S TIME FOR A NEW QUESTION!"); 
+  	for (var i = 0; i < buttons.length; i++) 
+  	{
+  	
+  		//RESET THE LOOK SETTINGS TO UNDO CHOSEN ANSWER
+  		buttons[i].fillColor=btnNeutralFillColor;
+  		buttons[i].strokeColor=btnNeutralStrokeColor; 
+  		buttons[i].fontColor="#000";
+  		buttons[i].text=msg.answer[i];
+  	
+  		//THIS GETS THE LENGTH OF THE LONGEST BUTTON
+  		longestButton=Math.max(buttons[i].getWidth(),longestButton);
+  	}
+    answerChosen=-1;
   };
 
-  function handleDeath() {
+  function handleScore(msg) 
+  {
+  	document.body.style.backgroundColor = msg.abcdef;
+  	console.log(msg.abcdef);
   };
 
+
+  
+  //THIS FUNCTION RESIZES BUTTONS WHEN THE SCREEN SIZE CHANGES
+  function handleResize() 
+  {
+  	if (topMargin+btmMargin+btnHeight*buttons.length>document.documentElement.clientHeight ||
+  	    longestButton+leftMargin+rightMargin>document.documentElement.clientWidth) //if there's not enough space for all of the buttons
+  	{
+  		shrink=Math.min(document.documentElement.clientHeight/(topMargin+btmMargin+btnHeight*buttons.length),document.documentElement.clientWidth/(longestButton+leftMargin+rightMargin)); 
+  		//then we're going to shrink to make it fit based on the smaller ratio
+  	} else {shrink=1;}
+
+  	
+    for (var i = 0; i < buttons.length; i++) 
+  	{
+  		buttons[i].xPos=(document.documentElement.clientWidth-longestButton*shrink)/2;
+  		buttons[i].yPos=(topMargin+i*(btnHeight+btnStrokeWidth+3))*shrink;
+  		buttons[i].fontSize=btnFontSize*shrink;
+  		buttons[i].fontStyle=""+(btnFontSize*shrink)+"px Verdana";
+  		buttons[i].btnWidth=btnWidth*shrink;
+  	    buttons[i].btnHeight=btnHeight*shrink;
+
+  		
+  		buttons[i].resize();
+  	}
+
+  };
+  var longestButton=0; //This will have the px length of the longest button
+  var answerChosen=0;  //-1 for none, 0=a, 1=b, 2=c, 3=d
+
+  //EVENT LISTENERS
   g_client.addEventListener('score', handleScore);
-  g_client.addEventListener('die', handleDeath);
-
-  var color = Misc.randCSSColor();
-  g_client.sendCmd('setColor', { color: color });
+  window.addEventListener('resize', handleResize);
+  g_client.addEventListener('newQuestion', handleNewQuestion);
+ 
+  //THESE CONTROL HOW YOUR CONTROLLERS LOOK
+  //BUTTONS:
+  var btnNeutralFillColor="#F9F4AB"; //Button look options
+  var btnNeutralStrokeColor="#D9D367";
+  var btnStrokeWidth=6;
+  var btnFontSize=44;
+  var btnWidth=270;
+  var btnHeight=70;
+  var shrink=1; //This is for when the screen gets WAAY TOO SMALL. 1=full size, <1 shrunk somewhat
+  //OTHER:
+  var topMargin=150;
+  var btmMargin=250;
+  var leftMargin=75;
+  var rightMargin=75;
+  
+  //THESE CONTROL THE BACKGROUND COLOR
+  var color = "#FFF";
+  g_client.sendCmd('setColor', { color: color }); //THIS SENDS YOUR BACKGROUND COLOR TO THE GAME
   document.body.style.backgroundColor = color;
 
   g_audioManager = new AudioManager();
 
-  var dpads = [
-    new DPad({element: $("dpadleft")}),
-    new DPad({element: $("dpadright")}),
+  //THIS INITIALIZES YOUR BUTTONS
+  var buttons = [
+    new AnswerButton({element: $("answerA"), text: ""}),
+    new AnswerButton({element: $("answerB"), text: ""}),
+    new AnswerButton({element: $("answerC"), text: ""}),
+    new AnswerButton({element: $("answerD"), text: ""}),
   ];
-
-  var dpadSize0 = dpads[0].getSize();
-  var dpadSize1 = dpads[1].getSize();
+  for (var i = 0; i < buttons.length; i++) 
+  {
+  	
+  	//THESE INITIALIZE THE LOOK SETTINGS
+    buttons[i].fillColor=btnNeutralFillColor;
+  	buttons[i].strokeColor=btnNeutralStrokeColor; 
+  	buttons[i].strokeWidth=btnStrokeWidth;		
+  	buttons[i].fontSize=btnFontSize;
+  	buttons[i].fontStyle=""+btnFontSize+"px Verdana";
+  	buttons[i].fontColor="#000";
+  	buttons[i].xPos=(document.documentElement.clientWidth)/2-200;
+  	buttons[i].yPos=topMargin+i*(btnHeight+btnStrokeWidth+3);
+  	buttons[i].btnWidth=btnWidth;
+  	buttons[i].btnHeight=btnHeight;
+  	
+  	//THIS GETS THE LENGTH OF THE LONGEST BUTTOn
+  	console.log("buttonWidth="+buttons[i].getWidth);
+  	longestButton=Math.max(buttons[i].getWidth(),longestButton);
+  	console.log("longestButton="+longestButton);
+  }
+  
+  handleResize(); //REDRAW THE BUTTONS JUST TO BE SAFE
+  
+  
+	var handlePress = function(e) 
+	{
+	  console.log("Handling press at "+e.x+", "+e.y);
+	  if (answerChosen==-1)
+	  {
+	  	for (var i = 0; i < buttons.length; i++) 
+ 	  	{
+ 	  	console.log("Button Xpos="+buttons[i].xPos);
+ 	  	console.log("Button Width="+buttons[i].getWidth());
+ 	  	
+ 	  		if (buttons[i].xPos<e.x && e.x<buttons[i].xPos+buttons[i].getWidth() && buttons[i].yPos<e.y && e.y<buttons[i].yPos+buttons[i].btnHeight)
+ 	  		{
+ 	  			answerChosen=i;
+ 	  			g_client.sendCmd('answer', {answer: i});
+ 	  			buttons[i].fillColor="#00FF00";
+ 	  			break;
+ 	  		}
+ 	 	}
+ 	 	handleResize();
+ 	 }
+    };
 
   var sendPad = function(e) {
-    if (globals.debug) {
+   /* if (globals.debug) {
       console.log("pad: " + e.pad + " dir: " + e.info.symbol + " (" + e.info.direction + ")");
     }
-    dpads[e.pad].draw(e.info);
+    buttons[e.pad].draw(e.info);
     g_client.sendCmd('pad', {pad: e.pad, dir: e.info.direction});
   };
+  
+  var handleAbutton = function(pressed) {
+    g_abutton = pressed;
+    g_client.sendCmd('abutton', {
+        abutton: pressed,
+    });
+*/
+    };
 
-  CommonUI.setupStandardControllerUI(g_client, globals);
-
-  Input.setupKeyboardDPadKeys(sendPad);
-  var container = $("dpadinput");
-  Touch.setupVirtualDPads({
+    CommonUI.setupStandardControllerUI(g_client, globals);
+    var container = $("answerinput");
+    Touch.setupButtons({
+      inputElement: $("answers"),
+      buttons: [
+        { element: $("answers"), callback: function(e) { handlePress(e); }, },
+      ],
+    });
+    
+    
+   
+    Touch.setupVirtualDPads({
     inputElement: container,
     callback: sendPad,
     fixedCenter: true,
     pads: [
       {
-        referenceElement: $("dpadleft"),
-        offsetX: dpadSize0 / 2,
-        offsetY: dpadSize0 / 2,
+        referenceElement: $("answerA"),
+        offsetX: 2 / 2,
+        offsetY: 2 / 2,
       },
       {
-        referenceElement: $("dpadright"),
-        offsetX: dpadSize1 / 2,
-        offsetY: dpadSize1 / 2,
+        referenceElement: $("answerB"),
+        offsetX: 2 / 2,
+        offsetY: 2 / 2,
       },
     ],
   });
+  
+  
 
 };
 
@@ -116,6 +245,7 @@ requirejs([
     '../../../scripts/commonui',
     '../../../scripts/gameclient',
     '../../../scripts/misc/dpad',
+    '../../../scripts/misc/answerbutton',
     '../../../scripts/misc/input',
     '../../../scripts/misc/misc',
     '../../../scripts/misc/mobilehacks',

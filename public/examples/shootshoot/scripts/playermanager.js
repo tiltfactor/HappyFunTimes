@@ -35,6 +35,7 @@ define(['./player'], function(Player) {
   var PlayerManager = function(services) {
     this.services = services;
     this.players = [];
+    //console.log("Creating a Player Manager");
   };
 
   PlayerManager.prototype.startPlayer = function(netPlayer, name) {
@@ -60,6 +61,7 @@ define(['./player'], function(Player) {
 
   PlayerManager.prototype.forEachPlayer = function(callback) {
     for (var ii = 0; ii < this.players.length; ++ii) {
+      console.log("Doing forEachPlayer "+ii);
       callback(this.players[ii]);
     }
   };

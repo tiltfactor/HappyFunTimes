@@ -45,7 +45,7 @@ var main = function(
     EntitySystem,
     PlayerManager) {
 
-  var g_debug = false;
+  var g_debug = true;
   var g_services = {};
 
   var g_entitySystem = new EntitySystem();
@@ -94,7 +94,7 @@ var main = function(
     haveServer: true,
     numLocalPlayers: 2,  // num players when local (ie, debugging)
     force2d: false,
-    debug: false,
+    debug: true,
     playerMoveSpeed: 192,
     playerShotRate: 0.25,
     maxShotsPerPlayer: 3,
@@ -125,16 +125,22 @@ var main = function(
   Misc.applyUrlSettings(globals);
 
   g_services.globals = globals;
-
+  var currentAnswers = [];
+  currentAnswers[0]="Marie Curie";
+  currentAnswers[1]="Ada Lovelace";
+  currentAnswers[2]="Louis Pasteur";
+  currentAnswers[3]="Albert Einstein";
   var server;
-  if (globals.haveServer) {
-    server = new GameServer({
-      gameId: "shootshoot",
-    });
+  if (globals.haveServer) 
+  {
+    server = new GameServer({gameId: "shootshoot",});
     g_services.server = server;
     server.addEventListener('playerconnect', g_playerManager.startPlayer.bind(g_playerManager));
+    console.log(currentAnswers);
+    console.log(g_playerManager.players[0]);
   }
   GameSupport.init(server, globals);
+  sendNewQuestions();
 
   var canvas = $("canvas");
   var ctx = canvas.getContext("2d");
@@ -155,6 +161,16 @@ var main = function(
     g_drawSystem.processEntities(ctx);
   }
   GameSupport.run(globals, render);
+  
+  function sendNewQuestions ()
+  {
+  	console.log("Calling sendNewQuestions");
+  	for (var ii = 0; ii<g_playerManager.players.length; ++ii)
+    {
+    	console.log("Sending newQuestion to player "+g_playerManager.players[ii]);
+ 	 	g_playerManager.players[ii].netPlayer.sendCmd('newQuestion', {answer: currentAnswers});
+    }
+  }
 
 };
 
