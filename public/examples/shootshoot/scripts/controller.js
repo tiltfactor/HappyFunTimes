@@ -60,6 +60,7 @@ var main = function(
   function handleNewQuestion(msg) 
   {
   console.log("IT'S TIME FOR A NEW QUESTION!"); 
+  console.log("Answers are: "+msg.answer);
   	for (var i = 0; i < buttons.length; i++) 
   	{
   	
@@ -73,6 +74,7 @@ var main = function(
   		longestButton=Math.max(buttons[i].getWidth(),longestButton);
   	}
     answerChosen=-1;
+    handleResize();
   };
 
   function handleScore(msg) 
@@ -82,6 +84,21 @@ var main = function(
   };
 
 
+  //This is what happen when the player class sends back whether or not the answer was correct
+  function handleAnswerFeedback(msg)
+  {
+  	console.log(msg.answerType);
+  	if (msg.answerType == "correct")
+  	{
+  		 buttons[answerChosen].fillColor=btnCorrectFillColor;
+ 	}
+ 	else 
+ 	{
+ 		buttons[answerChosen].fillColor=btnIncorrectFillColor;
+ 	}
+ 	this.score = msg.newScore;
+ 	handleResize();
+  }
   
   //THIS FUNCTION RESIZES BUTTONS WHEN THE SCREEN SIZE CHANGES
   function handleResize() 
@@ -93,7 +110,6 @@ var main = function(
   		//then we're going to shrink to make it fit based on the smaller ratio
   	} else {shrink=1;}
 
-  	
     for (var i = 0; i < buttons.length; i++) 
   	{
   		buttons[i].xPos=(document.documentElement.clientWidth-longestButton*shrink)/2;
@@ -102,24 +118,27 @@ var main = function(
   		buttons[i].fontStyle=""+(btnFontSize*shrink)+"px Verdana";
   		buttons[i].btnWidth=btnWidth*shrink;
   	    buttons[i].btnHeight=btnHeight*shrink;
-
-  		
   		buttons[i].resize();
   	}
 
   };
   var longestButton=0; //This will have the px length of the longest button
-  var answerChosen=0;  //-1 for none, 0=a, 1=b, 2=c, 3=d
+  var answerChosen=0;  //-1 for none, 0=a, 1=b, 2=c, 3=d starts at 0 so you can't select anything
+  var score=0; //reflects the host score, not the other way around.
 
   //EVENT LISTENERS
   g_client.addEventListener('score', handleScore);
   window.addEventListener('resize', handleResize);
   g_client.addEventListener('newQuestion', handleNewQuestion);
+  g_client.addEventListener('answerFeedback', handleAnswerFeedback);
  
   //THESE CONTROL HOW YOUR CONTROLLERS LOOK
   //BUTTONS:
   var btnNeutralFillColor="#F9F4AB"; //Button look options
   var btnNeutralStrokeColor="#D9D367";
+  var btnSelectedFillColor="#D3D3D3";
+  var btnCorrectFillColor="#00FF00";
+  var btnIncorrectFillColor="#FF0000";
   var btnStrokeWidth=6;
   var btnFontSize=44;
   var btnWidth=270;
@@ -140,7 +159,7 @@ var main = function(
 
   //THIS INITIALIZES YOUR BUTTONS
   var buttons = [
-    new AnswerButton({element: $("answerA"), text: ""}),
+    new AnswerButton({element: $("answerA"), text: "Waiting For a Question"}),
     new AnswerButton({element: $("answerB"), text: ""}),
     new AnswerButton({element: $("answerC"), text: ""}),
     new AnswerButton({element: $("answerD"), text: ""}),
@@ -182,8 +201,8 @@ var main = function(
  	  		if (buttons[i].xPos<e.x && e.x<buttons[i].xPos+buttons[i].getWidth() && buttons[i].yPos<e.y && e.y<buttons[i].yPos+buttons[i].btnHeight)
  	  		{
  	  			answerChosen=i;
- 	  			g_client.sendCmd('answer', {answer: i});
- 	  			buttons[i].fillColor="#00FF00";
+ 	  			g_client.sendCmd('answer', {answer: buttons[i].text});
+ 	  			buttons[i].fillColor=btnSelectedFillColor;
  	  			break;
  	  		}
  	 	}

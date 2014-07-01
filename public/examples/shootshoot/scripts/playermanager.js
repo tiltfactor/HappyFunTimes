@@ -41,8 +41,8 @@ define(['./player'], function(Player) {
   PlayerManager.prototype.startPlayer = function(netPlayer, name) {
     var misc = this.services.misc;
     var globals = this.services.globals;
-    var x = misc.randInt(globals.width);
-    var y = misc.randInt(globals.height);
+    var x = -100;
+    var y = -100;
     var player = new Player(this.services, x, y, name, netPlayer);
     this.players.push(player);
     return player;

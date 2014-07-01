@@ -46,7 +46,7 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
 	  this.abutton = new GameButton(services.entitySystem);
       this.netPlayer = netPlayer;
       this.position = [x, y];
-      this.color = services.misc.randCSSColor();
+      this.color = "#D3D3D3";
       this.sizeW = 16;
       this.sizeH = 16;
 
@@ -56,12 +56,14 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
       netPlayer.addEventListener('setColor', Player.prototype.handleSetColorMsg.bind(this));
       netPlayer.addEventListener('busy', Player.prototype.handleBusyMsg.bind(this));
       netPlayer.addEventListener('abutton', Player.prototype.handleAButtonMsg.bind(this));
+      netPlayer.addEventListener('answer', Player.prototype.handleAnswer.bind(this));
 
       this.name = name;
       this.pads = [-1, -1];
       this.score = 0;
       this.shootTimer = 0;
       this.shots = [];
+      this.correctAnswer = "";
 
       this.setState('color');
     };
@@ -101,6 +103,27 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
      this.sizeW *= 2;
      this.sizeH *= 2;
      this.netPlayer.sendCmd('score',{abcdef: "#FFFFFF"});
+  };
+  
+  Player.prototype.handleAnswer = function(msg) 
+  {
+  var globals = this.services.globals;
+     if (msg.answer == this.correctAnswer)
+     {
+     	this.score+=globals.scores[Math.min(globals.currentScore, globals.scores.length-1)]; //Set your score to previous score plus the current place in the scores array
+     																						  //if you're past the 4th person scoring, you get the last score
+     	this.position = globals.scorePositions[Math.min(globals.currentScore,globals.scorePositions.length-1)];
+     	this.color = "#00FF00";
+     	globals.currentScore++; //increment the place in the scores array.
+     	this.services.audioManager.playSound('bing');
+     	this.netPlayer.sendCmd('answerFeedback',{answerType: "correct", newScore: this.score}); //alert the controller of the changes
+     } 
+     else 
+     {
+     	 this.color = "#FF0000";
+     	 this.services.audioManager.playSound('buzz');
+    	 this.netPlayer.sendCmd('answerFeedback',{answerType: "incorrect", newScore: this.score});
+     }
   };
 
   Player.prototype.handleNameMsg = function(msg) {
@@ -155,7 +178,6 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
   
   Player.prototype.state_color = function() 
   {
-	  this.color = "#00FF00";
       this.setState('idle');
       return;
   };

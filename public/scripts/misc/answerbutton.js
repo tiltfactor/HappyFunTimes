@@ -96,8 +96,8 @@ define(
     	var textLength = ctx.measureText(this.text);
     	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     	ctx.save();
-    	ctx.fillStyle = this.fillColor; //"#F9F4AB";
-    	ctx.strokeStyle = this.strokeColor; //"#D9D367";
+    	ctx.fillStyle = this.fillColor; //"#F9F4AB"
+    	ctx.strokeStyle = this.strokeColor; //"#D9D367"
     	ctx.lineWidth = this.strokeWidth;
     	roundRect(ctx, this.xPos, this.yPos, textLength.width+100, this.btnHeight, 20, true, true);
     	ctx.fillStyle = this.fontColor;
