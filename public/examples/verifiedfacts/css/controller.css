@@ -28,42 +28,65 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-"use strict";
+#answers {
+  width: 100%;
+  height: 100%;
+  position: relative;
 
-define(['./player'], function(Player) {
+  gdisplay: flex;
+  gdisplay: -webkit-flex;
 
-  var PlayerManager = function(services) {
-    this.services = services;
-    this.players = [];
-  };
+  gflex-flow: row nowrap;
+  g-webkit-flex-flow: row nowrap;
 
-  PlayerManager.prototype.startPlayer = function(netPlayer, name) {
-    var misc = this.services.misc;
-    var globals = this.services.globals;
-    var x = misc.randInt(globals.width);
-    var y = misc.randInt(globals.height);
-    var player = new Player(this.services, x, y, name, netPlayer);
-    this.players.push(player);
-    return player;
+  gjustify-content: space-between;
+  galign-content: center;
+  galign-items: center;
+  g-webkit-justify-content: space-between;
+  g-webkit-align-content: center;
+  g-webkit-align-items: center;
+  gborder: 1px solid red;
+}
+#answerinput {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+#answerA, #answerB, #answerC, #answerD {
+  position: absolute;
+  width: 100%;
+}
+#answers canvas {
+    width: 100%;
+    height: 100%px;
+}
+#answerA {
+left: 0px;
+}
+#answerB {
+left: 0px;
+}
+#answerC {
+left: 0px;
+}
+#answerD {
+left: 0px;
+}
+
+@media only screen and (max-height : 208px) {
+  #answerA, #answerB, #answerC, #answerD {
+    bottom: 2px;
   }
-
-  PlayerManager.prototype.removePlayer = function(playerToRemove) {
-    var netPlayer = playerToRemove.netPlayer;
-    for (var ii = 0; ii < this.players.length; ++ii) {
-      var player = this.players[ii];
-      if (player.netPlayer === netPlayer) {
-        this.players.splice(ii, 1);
-        return;
-      }
-    }
-  };
-
-  PlayerManager.prototype.forEachPlayer = function(callback) {
-    for (var ii = 0; ii < this.players.length; ++ii) {
-      callback(this.players[ii]);
-    }
-  };
-
-  return PlayerManager;
-});
+  #answers canvas {
+      width: 280;
+      height: 140px;
+  }
+}
 

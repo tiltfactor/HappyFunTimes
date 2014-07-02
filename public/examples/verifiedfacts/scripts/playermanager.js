@@ -35,13 +35,14 @@ define(['./player'], function(Player) {
   var PlayerManager = function(services) {
     this.services = services;
     this.players = [];
+    //console.log("Creating a Player Manager");
   };
 
   PlayerManager.prototype.startPlayer = function(netPlayer, name) {
     var misc = this.services.misc;
     var globals = this.services.globals;
-    var x = misc.randInt(globals.width);
-    var y = misc.randInt(globals.height);
+    var x = -100;
+    var y = -100;
     var player = new Player(this.services, x, y, name, netPlayer);
     this.players.push(player);
     return player;
@@ -60,6 +61,7 @@ define(['./player'], function(Player) {
 
   PlayerManager.prototype.forEachPlayer = function(callback) {
     for (var ii = 0; ii < this.players.length; ++ii) {
+      console.log("Doing forEachPlayer "+ii);
       callback(this.players[ii]);
     }
   };

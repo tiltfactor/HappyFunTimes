@@ -1,0 +1,15 @@
+{
+  "name": "Verified Facts",
+  "description": "Pub trivia for your living room",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+  },
+  "happyFunTimes": {
+    "gameUrl": "gameview.html",
+    "screenshotUrl": "screenshot.png",
+    "gameType": "html",
+    "useControllerTemplate": true,
+    "useGameTemplate": true
+  }
+}

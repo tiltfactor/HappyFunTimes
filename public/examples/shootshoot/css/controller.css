@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#answers {
+#dpads {
   width: 100%;
   height: 100%;
   position: relative;
@@ -47,7 +47,7 @@
   g-webkit-align-items: center;
   gborder: 1px solid red;
 }
-#answerinput {
+#dpadinput {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -59,33 +59,30 @@
     -o-user-select: none;
     user-select: none;
 }
-#answerA, #answerB, #answerC, #answerD {
+#dpadleft, #dpadright {
   position: absolute;
-  width: 100%;
+  width: 160px;
 }
-#answers canvas {
-    width: 100%;
-    height: 100%px;
+#dpads canvas {
+    width: 160px;
+    height: 160px;
 }
-#answerA {
-left: 0px;
+#dpadleft {
+  left: 2em;
+  bottom: 3em;
 }
-#answerB {
-left: 0px;
-}
-#answerC {
-left: 0px;
-}
-#answerD {
-left: 0px;
+#dpadright {
+  right: 2em;
+  bottom: 3em;
+  text-align: right;
 }
 
 @media only screen and (max-height : 208px) {
-  #answerA, #answerB, #answerC, #answerD {
+  #dpadleft, #dpadright {
     bottom: 2px;
   }
-  #answers canvas {
-      width: 280;
+  #dpads canvas {
+      width: 140px;
       height: 140px;
   }
 }
