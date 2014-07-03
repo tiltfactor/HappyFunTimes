@@ -122,7 +122,7 @@ var main = function(
     //minScore: 20, //minimum number of points that can be rewarded for a correct answer
     scores: [20,15,10,5], //the array of scores that can be achieved.  0,1,2 can be gotten once each, 3 can be gotten by everyone
     currentScore: 0, //setting this does nothing! keeps track of the current open place
-    scorePositions: [[280,710],[165,785],[405,840],[285,920],[185,920],[385,920],[485,920]], // the pixel positions at the tops of the podiums
+    scorePositions: [[820,405],[742,455],[900,488],[820,541],[720,541],[920,541],[620,541]], // the pixel positions at the tops of the podiums
   };
 
   function startLocalPlayers() {
@@ -205,16 +205,25 @@ var main = function(
 	
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     
-    drawPodium(ctx,100,700);
+    drawPodium(ctx,700,400,.65);
     
     ctx.fillStyle = "#FFF";
     ctx.font = "44px Verdana";
     
-    //Draw the time left
-    ctx.fillText(Math.ceil(getTimeLeft()/1000),100,100);
+    //Draw the time left (make it red if it's less than 0)
+    if (getTimeLeft()<0)
+    {
+    	ctx.fillStyle = "#FF0000";
+    	ctx.fillText(5-Math.abs(Math.ceil(getTimeLeft()/1000)),50,50);
+    }
+    else
+    {
+    	ctx.fillText(Math.ceil(getTimeLeft()/1000),50,50);
+    }
     
+    ctx.fillStyle = "#FFF";
     //Draw the question text
-    drawQuestionText(questions[questionNumber][0],100,300,800,600);
+    drawQuestionText(questions[questionNumber][0],50,100,570,600);
     
     //Draw players' names and scores
     var namesAndScores="";
@@ -223,18 +232,34 @@ var main = function(
     {
     	namesAndScores=(""+namesAndScores+g_playerManager.players[ii].name+": "+g_playerManager.players[ii].score+"   ");
     }
-    ctx.fillText(namesAndScores,200,100);
+    ctx.fillText(namesAndScores,150,50);
     
     g_drawSystem.processEntities(ctx);
     
+    for (var ii = 0; ii<justAnswers(questions[questionNumber]).length; ++ii)
+    {
+    	if (getTimeLeft()<0 && justAnswers(questions[questionNumber])[ii]==correctAnswer(questions[questionNumber]))
+    	{
+    		ctx.fillStyle = "#00FF00";
+    	}
+    	else
+    	{
+    	ctx.fillStyle = "#FFF";
+    	}
+    	
+    	ctx.fillText(justAnswers(questions[questionNumber])[ii],700,100+ii*50);
+    }
     
-    if (getGameTime()>questionStartTime+globals.questionDuration*1000)
+    
+    if (getGameTime()>questionStartTime+globals.questionDuration*1000+5000)
     {
     	console.log("Question Duration is up!");
     	questionStartTime = getGameTime();
     	questionNumber++;
     	sendNewQuestions();
     }
+    
+    
     
   }
   GameSupport.run(globals, render);
@@ -252,7 +277,7 @@ var main = function(
  	 	g_playerManager.players[ii].netPlayer.sendCmd('newQuestion', {answer: currentAnswers});
  	 	g_playerManager.players[ii].correctAnswer = rightAnswer;
  	 	g_playerManager.players[ii].color = "#D3D3D3";
- 	 	g_playerManager.players[ii].position = [500+100*ii,1000];
+ 	 	g_playerManager.players[ii].position = [600-100*ii,590];
     }
   }
   
@@ -260,7 +285,7 @@ var main = function(
   function drawQuestionText (questionText, xposition, yposition, boxWidth, boxHeight)
   {
   	ctx.fillStyle = "#FFF";
-  	ctx.font = "30px Verdana";
+  	ctx.font = "26px Verdana";
   	var partialText = textByPercent(questionText,getTimeIn()/(globals.questionDuration*1000-globals.questionCompleteTime*1000));
   	var linesOfText = Math.ceil(ctx.measureText(questionText).width/boxWidth);
   	var firstSplitPoint = 0;
@@ -399,7 +424,7 @@ var main = function(
   }
 
 
-	function drawPodium(ctx,x,y) 
+	function drawPodium(ctx,x,y,shrink) 
 	{
 
       // scorePodium/namedview6
@@ -411,21 +436,21 @@ var main = function(
       // scorePodium/rect3981
       ctx.restore();
       ctx.beginPath();
-      ctx.moveTo(304.9+x, 164.8+y);
-      ctx.lineTo(301.3+x, 164.8+y);
+      ctx.moveTo(304.9*shrink+x, 164.8*shrink+y);
+      ctx.lineTo(301.3*shrink+x, 164.8*shrink+y);
       ctx.fillStyle = "rgb(0, 0, 0)";
       ctx.fill();
 
       // scorePodium/rect3981
       ctx.beginPath();
-      ctx.moveTo(326.4+x, 164.8+y);
-      ctx.lineTo(322.8+x, 164.8+y);
+      ctx.moveTo(326.4*shrink+x, 164.8*shrink+y);
+      ctx.lineTo(322.8*shrink+x, 164.8*shrink+y);
       ctx.fill();
 
       // scorePodium/path3986
       ctx.beginPath();
-      ctx.moveTo(72.1+x, 111.0+y);
-      ctx.lineTo(68.5+x, 111.0+y);
+      ctx.moveTo(72.1*shrink+x, 111.0*shrink+y);
+      ctx.lineTo(68.5*shrink+x, 111.0*shrink+y);
       ctx.fill();
 
       // scorePodium/Clip Group
@@ -433,11 +458,11 @@ var main = function(
       // scorePodium/Clip Group/Clipping Path
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(370.3+x, 0.0+y);
-      ctx.lineTo(12.5+x, 0.0+y);
-      ctx.lineTo(12.5+x, 223.0+y);
-      ctx.lineTo(370.3+x, 223.0+y);
-      ctx.lineTo(370.3+x, 0.0+y);
+      ctx.moveTo(370.3*shrink+x, 0.0*shrink+y);
+      ctx.lineTo(12.5*shrink+x, 0.0*shrink+y);
+      ctx.lineTo(12.5*shrink+x, 223.0*shrink+y);
+      ctx.lineTo(370.3*shrink+x, 223.0*shrink+y);
+      ctx.lineTo(370.3*shrink+x, 0.0*shrink+y);
       ctx.closePath();
       ctx.clip();
 
@@ -446,126 +471,126 @@ var main = function(
       // scorePodium/Clip Group/Group/rect3981
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(283.4+x, 164.8+y);
-      ctx.lineTo(261.9+x, 164.8+y);
-      ctx.lineTo(261.9+x, 233.7+y);
-      ctx.lineTo(367.6+x, 233.7+y);
-      ctx.lineTo(367.6+x, 164.8+y);
-      ctx.lineTo(344.3+x, 164.8+y);
+      ctx.moveTo(283.4*shrink+x, 164.8*shrink+y);
+      ctx.lineTo(261.9*shrink+x, 164.8*shrink+y);
+      ctx.lineTo(261.9*shrink+x, 233.7*shrink+y);
+      ctx.lineTo(367.6*shrink+x, 233.7*shrink+y);
+      ctx.lineTo(367.6*shrink+x, 164.8*shrink+y);
+      ctx.lineTo(344.3*shrink+x, 164.8*shrink+y);
       ctx.fill();
 
       // scorePodium/Clip Group/Group/path3984
       ctx.beginPath();
-      ctx.moveTo(183.1+x, 39.4+y);
-      ctx.lineTo(124.0+x, 39.4+y);
-      ctx.lineTo(124.0+x, 233.7+y);
-      ctx.lineTo(260.1+x, 233.7+y);
-      ctx.lineTo(260.1+x, 39.4+y);
-      ctx.lineTo(201.0+x, 39.4+y);
+      ctx.moveTo(183.1*shrink+x, 39.4*shrink+y);
+      ctx.lineTo(124.0*shrink+x, 39.4*shrink+y);
+      ctx.lineTo(124.0*shrink+x, 233.7*shrink+y);
+      ctx.lineTo(260.1*shrink+x, 233.7*shrink+y);
+      ctx.lineTo(260.1*shrink+x, 39.4*shrink+y);
+      ctx.lineTo(201.0*shrink+x, 39.4*shrink+y);
       ctx.fill();
 
       // scorePodium/Clip Group/Group/path3986
       ctx.beginPath();
-      ctx.moveTo(50.6+x, 111.0+y);
-      ctx.lineTo(16.6+x, 111.0+y);
-      ctx.lineTo(16.6+x, 233.7+y);
-      ctx.lineTo(122.2+x, 233.7+y);
-      ctx.lineTo(122.2+x, 111.0+y);
-      ctx.lineTo(90.0+x, 111.0+y);
+      ctx.moveTo(50.6*shrink+x, 111.0*shrink+y);
+      ctx.lineTo(16.6*shrink+x, 111.0*shrink+y);
+      ctx.lineTo(16.6*shrink+x, 233.7*shrink+y);
+      ctx.lineTo(122.2*shrink+x, 233.7*shrink+y);
+      ctx.lineTo(122.2*shrink+x, 111.0*shrink+y);
+      ctx.lineTo(90.0*shrink+x, 111.0*shrink+y);
       ctx.fill();
 
       // scorePodium/Clip Group/Group/path3988
       ctx.beginPath();
-      ctx.moveTo(124.0+x, 37.6+y);
-      ctx.lineTo(260.1+x, 37.6+y);
-      ctx.lineTo(243.1+x, 19.7+y);
-      ctx.lineTo(141.0+x, 19.7+y);
-      ctx.lineTo(124.0+x, 37.6+y);
+      ctx.moveTo(124.0*shrink+x, 37.6*shrink+y);
+      ctx.lineTo(260.1*shrink+x, 37.6*shrink+y);
+      ctx.lineTo(243.1*shrink+x, 19.7*shrink+y);
+      ctx.lineTo(141.0*shrink+x, 19.7*shrink+y);
+      ctx.lineTo(124.0*shrink+x, 37.6*shrink+y);
       ctx.closePath();
       ctx.fill();
 
       // scorePodium/Clip Group/Group/path3990
       ctx.beginPath();
-      ctx.moveTo(16.6+x, 109.2+y);
-      ctx.lineTo(122.2+x, 109.2+y);
-      ctx.lineTo(122.2+x, 91.3+y);
-      ctx.lineTo(33.3+x, 91.3+y);
-      ctx.lineTo(16.6+x, 109.2+y);
+      ctx.moveTo(16.6*shrink+x, 109.2*shrink+y);
+      ctx.lineTo(122.2*shrink+x, 109.2*shrink+y);
+      ctx.lineTo(122.2*shrink+x, 91.3*shrink+y);
+      ctx.lineTo(33.3*shrink+x, 91.3*shrink+y);
+      ctx.lineTo(16.6*shrink+x, 109.2*shrink+y);
       ctx.closePath();
       ctx.fill();
 
       // scorePodium/Clip Group/Group/path3992
       ctx.beginPath();
-      ctx.moveTo(367.6+x, 163.0+y);
-      ctx.lineTo(261.9+x, 163.0+y);
-      ctx.lineTo(261.9+x, 145.1+y);
-      ctx.lineTo(350.8+x, 145.1+y);
-      ctx.lineTo(367.6+x, 163.0+y);
+      ctx.moveTo(367.6*shrink+x, 163.0*shrink+y);
+      ctx.lineTo(261.9*shrink+x, 163.0*shrink+y);
+      ctx.lineTo(261.9*shrink+x, 145.1*shrink+y);
+      ctx.lineTo(350.8*shrink+x, 145.1*shrink+y);
+      ctx.lineTo(367.6*shrink+x, 163.0*shrink+y);
       ctx.closePath();
       ctx.fill();
 
       // scorePodium/20
       ctx.restore();
       ctx.restore();
-      ctx.font = "43.0px 'Verdana'";
+      ctx.font = 43.0*shrink+"px 'Verdana'";
       ctx.fillStyle = "rgb(255, 255, 255)";
-      ctx.fillText("20", 163.9+x, 79.2+y);
+      ctx.fillText("20", 163.9*shrink+x, 79.2*shrink+y);
 
       // scorePodium/15
-      ctx.fillText("15", 38.5+x, 151.8+y);
+      ctx.fillText("15", 38.5*shrink+x, 151.8*shrink+y);
 
       // scorePodium/10
-      ctx.fillText("10", 286.5+x, 201.9+y);
+      ctx.fillText("10", 286.5*shrink+x, 201.9*shrink+y);
 
       // scorePodium/Group
 
       // scorePodium/Group/path3988
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(0.0+x, 242.7+y);
-      ctx.lineTo(136.1+x, 242.7+y);
-      ctx.lineTo(119.1+x, 224.8+y);
-      ctx.lineTo(17.0+x, 224.8+y);
-      ctx.lineTo(0.0+x, 242.7+y);
+      ctx.moveTo(0.0*shrink+x, 242.7*shrink+y);
+      ctx.lineTo(136.1*shrink+x, 242.7*shrink+y);
+      ctx.lineTo(119.1*shrink+x, 224.8*shrink+y);
+      ctx.lineTo(17.0*shrink+x, 224.8*shrink+y);
+      ctx.lineTo(0.0*shrink+x, 242.7*shrink+y);
       ctx.closePath();
       ctx.fillStyle = "rgb(0, 0, 0)";
       ctx.fill();
 
       // scorePodium/Group/path3988
       ctx.beginPath();
-      ctx.moveTo(248.0+x, 242.7+y);
-      ctx.lineTo(384.1+x, 242.7+y);
-      ctx.lineTo(367.1+x, 224.8+y);
-      ctx.lineTo(265.1+x, 224.8+y);
-      ctx.lineTo(248.0+x, 242.7+y);
+      ctx.moveTo(248.0*shrink+x, 242.7*shrink+y);
+      ctx.lineTo(384.1*shrink+x, 242.7*shrink+y);
+      ctx.lineTo(367.1*shrink+x, 224.8*shrink+y);
+      ctx.lineTo(265.1*shrink+x, 224.8*shrink+y);
+      ctx.lineTo(248.0*shrink+x, 242.7*shrink+y);
       ctx.closePath();
       ctx.fill();
 
       // scorePodium/Group/Path
       ctx.beginPath();
-      ctx.moveTo(285.6+x, 242.7+y);
-      ctx.lineTo(55.8+x, 242.7+y);
-      ctx.lineTo(55.8+x, 224.8+y);
-      ctx.lineTo(285.6+x, 224.8+y);
-      ctx.lineTo(285.6+x, 242.7+y);
+      ctx.moveTo(285.6*shrink+x, 242.7*shrink+y);
+      ctx.lineTo(55.8*shrink+x, 242.7*shrink+y);
+      ctx.lineTo(55.8*shrink+x, 224.8*shrink+y);
+      ctx.lineTo(285.6*shrink+x, 224.8*shrink+y);
+      ctx.lineTo(285.6*shrink+x, 242.7*shrink+y);
       ctx.closePath();
       ctx.fill();
 
       // scorePodium/Path
       ctx.restore();
       ctx.beginPath();
-      ctx.moveTo(384.1+x, 319.7+y);
-      ctx.lineTo(0.0+x, 319.7+y);
-      ctx.lineTo(0.0+x, 245.4+y);
-      ctx.lineTo(384.1+x, 245.4+y);
-      ctx.lineTo(384.1+x, 319.7+y);
+      ctx.moveTo(384.1*shrink+x, 319.7*shrink+y);
+      ctx.lineTo(0.0*shrink+x, 319.7*shrink+y);
+      ctx.lineTo(0.0*shrink+x, 245.4*shrink+y);
+      ctx.lineTo(384.1*shrink+x, 245.4*shrink+y);
+      ctx.lineTo(384.1*shrink+x, 319.7*shrink+y);
       ctx.closePath();
       ctx.fillStyle = "rgb(0, 0, 0)";
       ctx.fill();
 
       // scorePodium/5
       ctx.fillStyle = "rgb(255, 255, 255)";
-      ctx.fillText("5", 178.4+x, 287.9+y);
+      ctx.fillText("5", 178.4*shrink+x, 287.9*shrink+y);
       ctx.restore();
     }
 
