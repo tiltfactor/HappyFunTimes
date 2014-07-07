@@ -102,6 +102,7 @@ var main = function(
   var stop = false;
   var questionStartTime = getGameTime();
   var questionNumber=0;
+  var waitingStartTime=-1;
 
   // You can set these from the URL with
   // http://path/gameview.html?settings={name:value,name:value}
@@ -149,6 +150,7 @@ var main = function(
 
   g_services.globals = globals;
   var questions = [];
+  var baseDuration = globals.questionDuration;
   var state="playing";
   
   
@@ -183,15 +185,13 @@ var main = function(
     server = new GameServer({gameId: "verifiedfacts",});
     g_services.server = server;
     server.addEventListener('playerconnect', g_playerManager.startPlayer.bind(g_playerManager));
-    console.log(questions[questionNumber]);
-    console.log(g_playerManager.players[0]);
   }
   GameSupport.init(server, globals);
 
   var canvas = $("canvas");
   var ctx = canvas.getContext("2d");
 
-  resize(canvas);
+   
 
   // Add a 2 players if there is no communication
   if (!globals.haveServer) {
@@ -200,32 +200,51 @@ var main = function(
 
   function render() {
     g_entitySystem.processEntities();
-
-    resize(canvas);
+    
+	resize(canvas);
 	
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	
+	
     
     //THIS IS THE GAME ON SCORE SCREEN
-    if (state = "score")
+    if (state == "score")
     {
     
     }
     
     //THIS IS THE GAME ON START SCREEN
-    if (state = "start")
+    if (state == "start")
     {
     
     }
         
     //THIS IS THE GAME WAITING FOR PLAYERS
-    if (state = "waiting")
+    if (state == "waiting")
     {
+    
+   		ctx.fillStyle = "#D3D3D3";
+   		ctx.fillRect(100, 100, 600, 100);
+   		ctx.fillStyle = "#000";
+		ctx.font = "44px Verdana";
+		ctx.fillText("Waiting For More Players",125,175);
+   	
+   		if (g_playerManager.players.length>1)
+		{
+			console.log("Changing from waiting to playing");
+			state = "playing";
+			console.log("old questionStartTime="+questionStartTime);
+			questionStartTime += (getGameTime()-waitingStartTime);
+			console.log("new questionStartTime="+questionStartTime);
+		}
     	
     }
     
     //THIS IS THE GAME ACTUALLY RUNNING
-    if (state = "playing")
+    if (state == "playing")
     {
+    
+       
     
     	//Draw the score podium
 		drawPodium(ctx,700,400,.65);
@@ -263,6 +282,8 @@ var main = function(
 		g_drawSystem.processEntities(ctx);
 	
 	
+		
+	
 		//Highlights the correct answer
 		for (var ii = 0; ii<justAnswers(questions[questionNumber]).length; ++ii)
 		{
@@ -286,8 +307,16 @@ var main = function(
 			questionNumber++;
 			sendNewQuestions();
 		}
+		
+		  //If there aren't enough players, wait
+   		if (g_playerManager.players.length<2)
+		{
+			console.log("Changing from playing to waiting");
+			state = "waiting";
+			waitingStartTime=getGameTime();
+		}
     
-    }
+    }//END PLAYING STATE
     
     ctx.fillStyle = "#FFF";
 	ctx.font = "44px Verdana";
@@ -295,6 +324,7 @@ var main = function(
     //Draw the to join URL:
     ctx.fillText("To join go to "+document.URL.substr(0,document.URL.length-37),100,650);
     
+  
     
   }
   GameSupport.run(globals, render);
