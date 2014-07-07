@@ -149,7 +149,7 @@ var main = function(
 
   g_services.globals = globals;
   var questions = [];
-  
+  var state="playing";
   
   
   
@@ -205,60 +205,95 @@ var main = function(
 	
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     
-    drawPodium(ctx,700,400,.65);
-    
-    ctx.fillStyle = "#FFF";
-    ctx.font = "44px Verdana";
-    
-    //Draw the time left (make it red if it's less than 0)
-    if (getTimeLeft()<0)
+    //THIS IS THE GAME ON SCORE SCREEN
+    if (state = "score")
     {
-    	ctx.fillStyle = "#FF0000";
-    	ctx.fillText(5-Math.abs(Math.ceil(getTimeLeft()/1000)),50,50);
-    }
-    else
-    {
-    	ctx.fillText(Math.ceil(getTimeLeft()/1000),50,50);
+    
     }
     
-    ctx.fillStyle = "#FFF";
-    //Draw the question text
-    drawQuestionText(questions[questionNumber][0],50,100,570,600);
-    
-    //Draw players' names and scores
-    var namesAndScores="";
-    
-    for (var ii = 0; ii<g_playerManager.players.length; ++ii)
+    //THIS IS THE GAME ON START SCREEN
+    if (state = "start")
     {
-    	namesAndScores=(""+namesAndScores+g_playerManager.players[ii].name+": "+g_playerManager.players[ii].score+"   ");
+    
     }
-    ctx.fillText(namesAndScores,150,50);
-    
-    g_drawSystem.processEntities(ctx);
-    
-    for (var ii = 0; ii<justAnswers(questions[questionNumber]).length; ++ii)
+        
+    //THIS IS THE GAME WAITING FOR PLAYERS
+    if (state = "waiting")
     {
-    	if (getTimeLeft()<0 && justAnswers(questions[questionNumber])[ii]==correctAnswer(questions[questionNumber]))
-    	{
-    		ctx.fillStyle = "#00FF00";
-    	}
-    	else
-    	{
-    	ctx.fillStyle = "#FFF";
-    	}
     	
-    	ctx.fillText(justAnswers(questions[questionNumber])[ii],700,100+ii*50);
     }
     
-    
-    if (getGameTime()>questionStartTime+globals.questionDuration*1000+5000)
+    //THIS IS THE GAME ACTUALLY RUNNING
+    if (state = "playing")
     {
-    	console.log("Question Duration is up!");
-    	questionStartTime = getGameTime();
-    	questionNumber++;
-    	sendNewQuestions();
+    
+    	//Draw the score podium
+		drawPodium(ctx,700,400,.65);
+	
+		ctx.fillStyle = "#FFF";
+		ctx.font = "44px Verdana";
+	
+	
+		//Draw the time left 
+		if (getTimeLeft()<0)
+		{
+			ctx.fillStyle = "#FF0000";
+			ctx.fillText(5-Math.abs(Math.ceil(getTimeLeft()/1000)),50,50);
+		}
+		else
+		{
+			ctx.fillText(Math.ceil(getTimeLeft()/1000),50,50);
+		}
+	
+		ctx.fillStyle = "#FFF";
+		
+		
+		//Draw the actual question text
+		drawQuestionText(questions[questionNumber][0],50,100,570,600);
+	
+		//Draw players' names and scores
+		var namesAndScores="";
+	
+		for (var ii = 0; ii<g_playerManager.players.length; ++ii)
+		{
+			namesAndScores=(""+namesAndScores+g_playerManager.players[ii].name+": "+g_playerManager.players[ii].score+"   ");
+		}
+		ctx.fillText(namesAndScores,150,50);
+	
+		g_drawSystem.processEntities(ctx);
+	
+	
+		//Highlights the correct answer
+		for (var ii = 0; ii<justAnswers(questions[questionNumber]).length; ++ii)
+		{
+			if (getTimeLeft()<0 && justAnswers(questions[questionNumber])[ii]==correctAnswer(questions[questionNumber]))
+			{
+				ctx.fillStyle = "#00FF00";
+			}
+			else
+			{
+			ctx.fillStyle = "#FFF";
+			}
+		
+			ctx.fillText(justAnswers(questions[questionNumber])[ii],700,100+ii*50);
+		}
+	
+		//Send new questions if time is up!
+		if (getGameTime()>questionStartTime+globals.questionDuration*1000+5000)
+		{
+			console.log("Question Duration is up!");
+			questionStartTime = getGameTime();
+			questionNumber++;
+			sendNewQuestions();
+		}
+    
     }
     
+    ctx.fillStyle = "#FFF";
+	ctx.font = "44px Verdana";
+    
+    //Draw the to join URL:
+    ctx.fillText("To join go to "+document.URL.substr(0,document.URL.length-37),100,650);
     
     
   }
