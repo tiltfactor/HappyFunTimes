@@ -45,13 +45,15 @@ define([
     return document.getElementById(id);
   };
 
+
   var setupStandardControllerUI = function(client, options) {
     var menu = $("hft-menu");
     var settings = $("hft-settings");
     var disconnected = $("hft-disconnected");
 
     var playerNameHandler = new PlayerNameHandler(client, $("hft-name"));
-
+	settings.style.display = "none";
+    playerNameHandler.startNameEntry();
     menu.addEventListener('click', function() {
       settings.style.display = "block";
     }, false);
@@ -92,6 +94,7 @@ define([
       if (options.disconnectFn) {
         options.disconnectFn();
       }
+      
 
       //
       var checkForGame = function() {
@@ -144,8 +147,11 @@ define([
       var debugCSS = Misc.findCSSStyleRule("#hft-debug");
       debugCSS.style.display = "block";
     }
+    
+    
   };
-
+  
+  
   return {
     setupStandardControllerUI: setupStandardControllerUI,
   };
