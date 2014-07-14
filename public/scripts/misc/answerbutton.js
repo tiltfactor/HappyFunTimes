@@ -55,12 +55,13 @@ define(
   var AnswerButton = function(options) 
   {
   	
-  	this.fillColor="#FFF";		//Default look options
-  	this.strokeColor="#000";	//These are overwritten by the look options in controller.js
-  	this.strokeWidth=6;		
+  	this.basecolor1="#1873BB";
+  	this.basecolor2="#53C8E9";
+  	this.fillColor1=this.basecolor1;		//Default look options
+  	this.fillColor2=this.basecolor2;	
   	this.fontSize=44;
   	this.fontStyle=""+this.fontSize+"px Verdana";
-  	this.fontColor="#000";
+  	this.fontColor="#FFF";
   	this.xPos=0;
   	this.yPos=0;
   	this.btnWidth=270;
@@ -73,7 +74,6 @@ define(
     // We have to put this in the DOM before asking it's size.
     this.canvas.width=document.documentElement.clientWidth;
     this.canvas.height=document.documentElement.clientHeight;
-    console.log("canvas width="+this.canvas.width);
     this.element.appendChild(this.canvas);
     this.ctx = this.canvas.getContext("2d");
     this.resize();
@@ -89,24 +89,65 @@ define(
  
  AnswerButton.prototype.drawButton = function(data) 
  {
+ 
+	this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	if (this.text!="")
 	{
-    	var ctx = this.ctx;
-    	ctx.font=this.fontStyle 
-    	var textLength = ctx.measureText(this.text);
-    	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    	ctx.save();
-    	ctx.fillStyle = this.fillColor; //"#F9F4AB"
-    	ctx.strokeStyle = this.strokeColor; //"#D9D367"
-    	ctx.lineWidth = this.strokeWidth;
-    	roundRect(ctx, this.xPos, this.yPos, textLength.width+100, this.btnHeight, 20, true, true);
-    	ctx.fillStyle = this.fontColor;
-    	ctx.textAlign = 'center';
-    	ctx.fillText(this.text,this.xPos+textLength.width/2+50,this.yPos+(this.fontSize-10+this.btnHeight)/2);
-    	console.log("document width"+document.documentElement.clientWidth);
-   		ctx.restore();
+   		
+   	  var gradient;
+
+
+      this.ctx.save();
+      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.btnWidth+this.xPos, this.btnHeight+this.yPos);
+      this.ctx.lineTo(0.0+this.xPos, this.btnHeight+this.yPos);
+      this.ctx.lineTo(0.0+this.xPos, 0.0+this.yPos);
+      this.ctx.lineTo(this.btnWidth+this.xPos, 0.0+this.yPos);
+      this.ctx.lineTo(this.btnWidth+this.xPos, this.btnHeight+this.yPos);
+      this.ctx.closePath();
+      gradient = this.ctx.createLinearGradient(this.btnWidth/2+this.xPos, this.btnHeight+this.yPos, this.btnWidth/2+this.xPos, 0.0+this.yPos);
+      gradient.addColorStop(0.00, this.fillColor1);
+      gradient.addColorStop(1.00, this.fillColor2);
+      this.ctx.fillStyle = gradient;
+      this.ctx.fill();
+      this.ctx.font=this.fontStyle;
+      this.ctx.fillStyle = this.fontColor;
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText(this.text,this.xPos+this.btnWidth/2+50,this.yPos+(this.fontSize-10+this.btnHeight)/2);
+      this.ctx.restore();
+   		
     }
   };
+  
+  AnswerButton.prototype.recolor = function()
+  {
+  	this.fillColor1=this.basecolor1;
+  	this.fillColor2=this.basecolor2;
+  }
+  
+   AnswerButton.prototype.erase = function()
+  {
+  	this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  }
+  
+  function getPPI(){
+  // create an empty element
+  var div = document.createElement("div");
+  // give it an absolute size of one inch
+  div.style.width="1in";
+  // append it to the body
+  var body = document.getElementsByTagName("body")[0];
+  body.appendChild(div);
+  // read the computed width
+  var ppi = document.defaultView.getComputedStyle(div, null).getPropertyValue('width');
+  // remove it again
+  body.removeChild(div);
+  // and return the value
+  return parseFloat(ppi);
+  }
+  
+  
 
   AnswerButton.prototype.draw = function(dirInfo) 
   {
@@ -124,36 +165,7 @@ define(
   };
   
   
-  function roundRect(ctx, x, y, width, height, radius, fill, stroke) 
-  {
-  	if (typeof stroke == "undefined" ) 
-  	{
-   		stroke = true;
-  	}
-  	if (typeof radius === "undefined") 
-  	{
-    	radius = 5;
- 	}
-  	ctx.beginPath();
-  	ctx.moveTo(x + radius, y);
- 	ctx.lineTo(x + width - radius, y);
-  	ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  	ctx.lineTo(x + width, y + height - radius);
-  	ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  	ctx.lineTo(x + radius, y + height);
-  	ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  	ctx.lineTo(x, y + radius);
-  	ctx.quadraticCurveTo(x, y, x + radius, y);
-  	ctx.closePath();
-  	if (stroke) 
-  	{
-    	ctx.stroke();
-  	}
-  	if (fill) 
-  	{
-    	ctx.fill();
-  	}        
-  }
+
 
   return AnswerButton;
 });

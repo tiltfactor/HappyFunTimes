@@ -170,8 +170,8 @@ var main = function(
   //questions[8] = ["In an experiment by Bruce Alexander, these subjects chose to drink untainted water despite being addicted to morphine. Edward Tolman's experiments with these subjects led him to develop the theoryof cognitive maps. In the “kerplunk” experiment, these subjects were conditioned to run into a barrier. John Watson used loud noises to condition Little Albert to fear white ones. Often placed in mazes by researchers, name these rodents frequently used in psychological experiments. ","Rats","Rats","Mice","Undergraduates","Chimpanzees"];
   //questions[9] = ["Born in 1965 in Gloucestershire, England, this author has published a book under the pseudonym “Robert Galbraith.” This author has written both the fastest selling and the second-fastest selling books of all time. Despite the claims of some critics who feel her most famous books are anti-religious, she believe in God and an afterlife. Name this author who drew on her own experiences with clinical depression in her invention of the soul-sucking creatures The Dementors.","J.K. Rowling","J.K. Rowling","Jane Austen","J.R.R. Tolkien","Virginia Woolf"];
  
-  questions[0]=["This Nobel Prize-winning scientist studied agriculture as an undergraduate at Cornell University, and soon became fascinated by genetics while studying maize. Her most famous discovery was the transposition of chromosomes and their role in gene expression, which was so revolutionary in the 1940s and '50s that her findings only gained recognition in subsequent decades.","Barbara McClintock","Barbara McClintock","Thomas Cech","Rachel Carson","Francis Crick"];
-questions[1]=["This famous computer scientist and mathematician said, Testing shows the presence, not the absence of bugs. Briefly considering a career in law, this Turing Award-winner instead chose to be a programmer back when programmer wasn't a recognized career. He wrote prolifically, preferring to write his thoughts out with a fountain pen rather than type, despite his interest in computers. His most famous contribution to computer science is a shortest path algorithm.","Edsger Dijkstra","Edsger Dijkstra","Grace Hopper","Gordon Moore","Alan Turing"];
+  questions[0]=["This Nobel Prize-winning scientist studied agriculture as an undergraduate at Cornell University, and soon became fascinated by genetics while studying maize. Her most famous discovery was the transposition of chromosomes and their role in gene expression, which was so revolutionary in the 1940s and '50s that her findings only gained recognition in subsequent decades.","Barbara McClintock","Barbara McClintock","Thomas Cech","Rachel Carson","Francis Crick","answer5","answer6"];
+questions[1]=["This famous computer scientist and mathematician said, Testing shows the presence, not the absence of bugs. Briefly considering a career in law, this Turing Award-winner instead chose to be a programmer back when programmer wasn't a recognized career. He wrote prolifically, preferring to write his thoughts out with a fountain pen rather than type, despite his interest in computers. His most famous contribution to computer science is a shortest path algorithm.","Edsger Dijkstra","Edsger Dijkstra","Grace Hopper","Gordon Moore","Alan Turing","answer5","answer6"];
 questions[2]=["A member of the Australian Parliament announced a campaign to ban this substance internationally, but it was never successful. For children under 5, this substance  is the most common cause unintentional death.This substance may cause electrical failures, and is used as a fire retardant. With global warming, the global levels of this substance are expected to rise. This substance is forbidden by the TSA.This substance is commonly found in swimming pools, aquifers, and sewage treatment plants."
 ,"Dihydrogen Monoxide","Dihydrogen Monoxide","Carbon Monoxide","Methyl iodide","Pentaerythritol tetranitrate"];
 questions[3]=["This person has both a Navy destroyer and a supercomputer named after them. They served in the United States Navy Reserve from 1943 to 1986, retiring with the rank of rear admiral. This person is better known, however, as a pioneer in the field of compilers and machine-independent programming languages. Their work laid the foundation for the development of COBOL, one of the most ubiquitous business languages to date. This person also is said to have popularized the term debugging, after they removed a moth stuck in a relay. Name this scientist, whose accomplishments and breadth of experience earned them the nickname Amazing _________.","Grace Hopper","Grace Hopper","Adele Goldstine","Mary Cartwright","Brendan Eich"];
@@ -302,7 +302,7 @@ questions[7]=["This famous scientist developed the first compiler for a computer
 			}
 			else
 			{
-			ctx.fillStyle = "#FFF";
+				ctx.fillStyle = "#FFF";
 			}
 		
 			ctx.fillText(justAnswers(questions[questionNumber])[ii],700,100+ii*50);
@@ -666,7 +666,21 @@ questions[7]=["This famous scientist developed the first compiler for a computer
       ctx.restore();
     }
 
-
+  function getPPI(){
+  // create an empty element
+  var div = document.createElement("div");
+  // give it an absolute size of one inch
+  div.style.width="1in";
+  // append it to the body
+  var body = document.getElementsByTagName("body")[0];
+  body.appendChild(div);
+  // read the computed width
+  var ppi = document.defaultView.getComputedStyle(div, null).getPropertyValue('width');
+  // remove it again
+  body.removeChild(div);
+  // and return the value
+  return parseFloat(ppi);
+}
 
 };
 

@@ -61,13 +61,34 @@ var main = function(
   {
   console.log("IT'S TIME FOR A NEW QUESTION!"); 
   console.log("Answers are: "+msg.answer);
+  
+  
+  	for (var x = 0; x < fullButtons.length; ++x) 
+ 	{
+  		fullButtons[x].text=""; //reset the text of the fullbuttons array
+  		fullButtons[x].erase();
+  	}
+  	
+  	buttons=fullButtons.slice(0); // clones fullButtons to set as buttons
+  	
+    console.log("fullButtons is"+fullButtons);
+    console.log("buttons is"+buttons);
+    
+    for (var j = 0; j<fullButtons.length-msg.answer.length; ++j)
+    {
+    	buttons.pop(); //This makes the buttons array the same length as the answers array
+    }
+    
+    console.log("fullButtons is"+fullButtons);
+    console.log("buttons is"+buttons);
+    
   	for (var i = 0; i < buttons.length; i++) 
   	{
   	
   		//RESET THE LOOK SETTINGS TO UNDO CHOSEN ANSWER
-  		buttons[i].fillColor=btnNeutralFillColor;
-  		buttons[i].strokeColor=btnNeutralStrokeColor; 
-  		buttons[i].fontColor="#000";
+  		buttons[i].recolor();
+  		buttons[i].fontColor="#FFF";
+		
   		buttons[i].text=msg.answer[i];
   	
   		//THIS GETS THE LENGTH OF THE LONGEST BUTTON
@@ -79,25 +100,35 @@ var main = function(
 
   function handleScore(msg) 
   {
-  	document.body.style.backgroundColor = msg.abcdef;
-  	console.log(msg.abcdef);
+  	//the score is sent back with the handleAnswerFeedback class.  This currently does nothing.
   };
 
 
   //This is what happen when the player class sends back whether or not the answer was correct
   function handleAnswerFeedback(msg)
   {
-  	console.log(msg.answerType);
+  	for (var i = 0; i < buttons.length; i++) 
+  	{
+  	
+  		//Change all of the answers to neutral
+  		buttons[i].fillColor1=btnNeutralFillColor;
+  		buttons[i].fillColor2=btnNeutralFillColor;
+  	}
+  	
   	if (msg.answerType == "correct")
   	{
-  		 buttons[answerChosen].fillColor=btnCorrectFillColor;
+  		 //then change the one chosen to be green if correct
+  		 buttons[answerChosen].fillColor1=btnCorrectFillColor;
+  		 buttons[answerChosen].fillColor2=btnCorrectFillColor;
  	}
  	else 
  	{
- 		buttons[answerChosen].fillColor=btnIncorrectFillColor;
+ 		//or red if incorrect 
+ 		buttons[answerChosen].fillColor1=btnIncorrectFillColor;
+ 		buttons[answerChosen].fillColor2=btnIncorrectFillColor;
  	}
- 	this.score = msg.newScore;
- 	handleResize();
+ 	this.score = msg.newScore; //also, record the score
+ 	handleResize(); //this will redraw everything
   }
   
   //THIS FUNCTION RESIZES BUTTONS WHEN THE SCREEN SIZE CHANGES
@@ -112,12 +143,12 @@ var main = function(
 
     for (var i = 0; i < buttons.length; i++) 
   	{
-  		buttons[i].xPos=(document.documentElement.clientWidth-longestButton*shrink)/2;
-  		buttons[i].yPos=(topMargin+i*(btnHeight+btnStrokeWidth+3))*shrink;
-  		buttons[i].fontSize=btnFontSize*shrink;
-  		buttons[i].fontStyle=""+(btnFontSize*shrink)+"px Verdana";
-  		buttons[i].btnWidth=btnWidth*shrink;
-  	    buttons[i].btnHeight=btnHeight*shrink;
+  		buttons[i].xPos=0;
+  		buttons[i].yPos=i*document.documentElement.clientHeight/buttons.length;
+  		//buttons[i].fontSize=btnFontSize*shrink;
+  		//buttons[i].fontStyle=""+(btnFontSize*shrink)+"px Verdana";
+  		buttons[i].btnWidth=document.documentElement.clientWidth;
+  	    buttons[i].btnHeight=document.documentElement.clientHeight/buttons.length;
   		buttons[i].resize();
   	}
 
@@ -134,6 +165,7 @@ var main = function(
  
   //THESE CONTROL HOW YOUR CONTROLLERS LOOK
   //BUTTONS:
+  var buttonBaseColors=[["#079700","#A6FA87"],["#1873BB","#53C8E9"],["#D415CA","#F27CEA"],["#FA6B16","#F5E333"],["#079700","#A6FA87"],["#1873BB","#53C8E9"]];
   var btnNeutralFillColor="#F9F4AB"; //Button look options
   var btnNeutralStrokeColor="#D9D367";
   var btnSelectedFillColor="#D3D3D3";
@@ -158,12 +190,17 @@ var main = function(
   g_audioManager = new AudioManager();
 
   //THIS INITIALIZES YOUR BUTTONS
-  var buttons = [
+  var fullButtons = [
     new AnswerButton({element: $("answerA"), text: "Waiting For a Question"}),
     new AnswerButton({element: $("answerB"), text: ""}),
     new AnswerButton({element: $("answerC"), text: ""}),
     new AnswerButton({element: $("answerD"), text: ""}),
+    new AnswerButton({element: $("answerE"), text: ""}),
+    new AnswerButton({element: $("answerF"), text: ""}),
   ];
+  
+  var buttons=fullButtons.slice(0); //The contents of "buttons" is going to change depending on the number of answers
+  
   for (var i = 0; i < buttons.length; i++) 
   {
   	
@@ -173,16 +210,17 @@ var main = function(
   	buttons[i].strokeWidth=btnStrokeWidth;		
   	buttons[i].fontSize=btnFontSize;
   	buttons[i].fontStyle=""+btnFontSize+"px Verdana";
-  	buttons[i].fontColor="#000";
+  	buttons[i].fontColor="#FFF";
   	buttons[i].xPos=(document.documentElement.clientWidth)/2-200;
   	buttons[i].yPos=topMargin+i*(btnHeight+btnStrokeWidth+3);
   	buttons[i].btnWidth=btnWidth;
   	buttons[i].btnHeight=btnHeight;
+  	buttons[i].basecolor1=buttonBaseColors[i][0];
+  	buttons[i].basecolor2=buttonBaseColors[i][1];
+  	buttons[i].recolor();
   	
   	//THIS GETS THE LENGTH OF THE LONGEST BUTTOn
-  	console.log("buttonWidth="+buttons[i].getWidth);
   	longestButton=Math.max(buttons[i].getWidth(),longestButton);
-  	console.log("longestButton="+longestButton);
   }
   
   handleResize(); //REDRAW THE BUTTONS JUST TO BE SAFE
@@ -193,16 +231,17 @@ var main = function(
 	  console.log("Handling press at "+e.x+", "+e.y);
 	  if (answerChosen==-1)
 	  {
-	  	for (var i = 0; i < buttons.length; i++) 
+	  	for (var i = 0; i < buttons.length; i++)
  	  	{
  	  	console.log("Button Xpos="+buttons[i].xPos);
  	  	console.log("Button Width="+buttons[i].getWidth());
  	  	
- 	  		if (buttons[i].xPos<e.x && e.x<buttons[i].xPos+buttons[i].getWidth() && buttons[i].yPos<e.y && e.y<buttons[i].yPos+buttons[i].btnHeight)
+ 	  		if (buttons[i].xPos<e.x && e.x<buttons[i].xPos+buttons[i].btnWidth && buttons[i].yPos<e.y && e.y<buttons[i].yPos+buttons[i].btnHeight)
  	  		{
  	  			answerChosen=i;
  	  			g_client.sendCmd('answer', {answer: buttons[i].text});
- 	  			buttons[i].fillColor=btnSelectedFillColor;
+ 	  			buttons[i].fillColor1=btnSelectedFillColor;
+ 	  			buttons[i].fillColor2=btnSelectedFillColor;
  	  			break;
  	  		}
  	 	}
