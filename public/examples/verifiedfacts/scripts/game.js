@@ -170,7 +170,7 @@ var main = function(
   //questions[8] = ["In an experiment by Bruce Alexander, these subjects chose to drink untainted water despite being addicted to morphine. Edward Tolman's experiments with these subjects led him to develop the theoryof cognitive maps. In the “kerplunk” experiment, these subjects were conditioned to run into a barrier. John Watson used loud noises to condition Little Albert to fear white ones. Often placed in mazes by researchers, name these rodents frequently used in psychological experiments. ","Rats","Rats","Mice","Undergraduates","Chimpanzees"];
   //questions[9] = ["Born in 1965 in Gloucestershire, England, this author has published a book under the pseudonym “Robert Galbraith.” This author has written both the fastest selling and the second-fastest selling books of all time. Despite the claims of some critics who feel her most famous books are anti-religious, she believe in God and an afterlife. Name this author who drew on her own experiences with clinical depression in her invention of the soul-sucking creatures The Dementors.","J.K. Rowling","J.K. Rowling","Jane Austen","J.R.R. Tolkien","Virginia Woolf"];
  
-  questions[0]=["This Nobel Prize-winning scientist studied agriculture as an undergraduate at Cornell University, and soon became fascinated by genetics while studying maize. Her most famous discovery was the transposition of chromosomes and their role in gene expression, which was so revolutionary in the 1940s and '50s that her findings only gained recognition in subsequent decades.","Barbara McClintock","Barbara McClintock","Thomas Cech","Rachel Carson","Francis Crick","answer5","answer6"];
+questions[0]=["This Nobel Prize-winning scientist studied agriculture as an undergraduate at Cornell University, and soon became fascinated by genetics while studying maize. Her most famous discovery was the transposition of chromosomes and their role in gene expression, which was so revolutionary in the 1940s and '50s that her findings only gained recognition in subsequent decades.","Barbara McClintock","Barbara McClintock","Thomas Cech","Rachel Carson","Francis Crick","answer5","answer6"];
 questions[1]=["This famous computer scientist and mathematician said, Testing shows the presence, not the absence of bugs. Briefly considering a career in law, this Turing Award-winner instead chose to be a programmer back when programmer wasn't a recognized career. He wrote prolifically, preferring to write his thoughts out with a fountain pen rather than type, despite his interest in computers. His most famous contribution to computer science is a shortest path algorithm.","Edsger Dijkstra","Edsger Dijkstra","Grace Hopper","Gordon Moore","Alan Turing","answer5","answer6"];
 questions[2]=["A member of the Australian Parliament announced a campaign to ban this substance internationally, but it was never successful. For children under 5, this substance  is the most common cause unintentional death.This substance may cause electrical failures, and is used as a fire retardant. With global warming, the global levels of this substance are expected to rise. This substance is forbidden by the TSA.This substance is commonly found in swimming pools, aquifers, and sewage treatment plants."
 ,"Dihydrogen Monoxide","Dihydrogen Monoxide","Carbon Monoxide","Methyl iodide","Pentaerythritol tetranitrate"];
@@ -179,6 +179,8 @@ questions[4]=["She liked to reach for the stars. KidSat, the program she develop
 questions[5]=["Designed by Chris Sanders this famous animated reptile made it to the big screen in 2010. This character's voice was constructed using the sounds of Elephant seals, horse and tigers. This well known lizard began from a series of books but took on a greater popularity after his big screen debut. Behaviors of this character were originally inspired by panthers. The character is first described as the Unholy offspring of lighting and death itself This fire breathing lizard is identified as the species Night Fury.","Toothless","Toothless","Smaug","Godzilla","Rango"];
 questions[6]=["This man is considered one of the greatest polar explorers ever to have lived. Hailed as the first to journey to the southern magnetic pole by charting a route through the trans-Antarctic mountains, this man later decided his next great quest would be to travel Antarctica shore to shore. This journey is hailed as one of the most incredible Antarctic adventures ever to be documented. His ship HMS Endurance was trapped in an ice pack and crushed, stranding this man and his crew on Elephant Island, where they survived on seal, penguin, and whale meat for nearly a year. Using longboats to make an 800-mile northward trek, this man and his men landed on South Georgia Island and made camp at a whaling station. A year later they were rescued and brought home to England, where King Edward VII knighted him for his bravery.","Sir Ernest Shackleton","Sir Ernest Shackleton","Roald Amundsen","Robert Falcon Scott","Richard Evelyn Byrd"];
 questions[7]=["This famous scientist developed the first compiler for a computer programming language. She popularized the idea of machine-independent programming languages, which led to the development of COBOL, one of the first modern programming languages. She is credited with popularizing the term debugging for fixing computer glitches. Name this computer scientist and United States Navy rear admiral.","Sally Kimball","Sally Kimball","Lara Croft","Grace Hopper","Ada Lovelace"];
+questions[8]=["This is a fake question to see the size of the answers","C","A","a","B","b","C","c"];
+questions[9]=["This is a fake question to see the size of the answers","C","A","a","B","b","C","c"];
   
   questions=randomizeArray(questions); //puts the questions in random order
   
@@ -263,12 +265,13 @@ questions[7]=["This famous scientist developed the first compiler for a computer
 	
 	
 		//Draw the time left 
-		if (getTimeLeft()<0)
+		if (getTimeLeft()<0) //If it's less than zero, count down from 5 and turn it red
 		{
+			removeRightAnswer(); //(Also make sure that no player can answer now);
 			ctx.fillStyle = "#FF0000";
 			ctx.fillText(5-Math.abs(Math.ceil(getTimeLeft()/1000)),50,50);
 		}
-		else
+		else //otherwise just draw the time
 		{
 			ctx.fillText(Math.ceil(getTimeLeft()/1000),50,50);
 		}
@@ -337,6 +340,16 @@ questions[7]=["This famous scientist developed the first compiler for a computer
     
   }
   GameSupport.run(globals, render);
+  
+  
+  //THIS FUNCTION PREVENTS ANY PLAYER ANSWERING FOR THE REST OF THE ROUND
+  function removeRightAnswer()
+  {
+  	for (var ii = 0; ii<g_playerManager.players.length; ++ii)
+    {
+ 	 	g_playerManager.players[ii].correctAnswer = "";
+    }
+  }
   
   function sendNewQuestions ()
   {

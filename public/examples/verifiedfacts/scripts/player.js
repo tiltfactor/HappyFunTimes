@@ -108,7 +108,12 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
   Player.prototype.handleAnswer = function(msg) 
   {
   var globals = this.services.globals;
-     if (msg.answer == this.correctAnswer)
+  console.log("Handling answer! Correct answer is: "+this.correctAnswer);
+  	 if (this.correctAnswer == "") //if the correct answer is null, prevent the player from answering
+  	 {
+  	 	this.netPlayer.sendCmd('answerFeedback',{answerType: "notAllowed", newScore: this.score});
+  	 }
+     else if (msg.answer == this.correctAnswer) //else if their answer is correct, then cool!
      {
      	this.score+=globals.scores[Math.min(globals.currentScore, globals.scores.length-1)]; //Set your score to previous score plus the current place in the scores array
      																						  //if you're past the 4th person scoring, you get the last score
@@ -118,12 +123,13 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
      	this.services.audioManager.playSound('bing');
      	this.netPlayer.sendCmd('answerFeedback',{answerType: "correct", newScore: this.score}); //alert the controller of the changes
      } 
-     else 
+     else //otherwise their answer is incorrect
      {
      	 this.color = "#FF0000";
      	 this.services.audioManager.playSound('buzz');
     	 this.netPlayer.sendCmd('answerFeedback',{answerType: "incorrect", newScore: this.score});
      }
+
   };
 
   Player.prototype.handleNameMsg = function(msg) {

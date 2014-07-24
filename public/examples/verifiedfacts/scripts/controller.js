@@ -59,8 +59,6 @@ var main = function(
 
   function handleNewQuestion(msg) 
   {
-  console.log("IT'S TIME FOR A NEW QUESTION!"); 
-  console.log("Answers are: "+msg.answer);
   
   
   	for (var x = 0; x < fullButtons.length; ++x) 
@@ -71,16 +69,13 @@ var main = function(
   	
   	buttons=fullButtons.slice(0); // clones fullButtons to set as buttons
   	
-    console.log("fullButtons is"+fullButtons);
-    console.log("buttons is"+buttons);
     
     for (var j = 0; j<fullButtons.length-msg.answer.length; ++j)
     {
     	buttons.pop(); //This makes the buttons array the same length as the answers array
     }
     
-    console.log("fullButtons is"+fullButtons);
-    console.log("buttons is"+buttons);
+    longestButton=0;
     
   	for (var i = 0; i < buttons.length; i++) 
   	{
@@ -88,11 +83,16 @@ var main = function(
   		//RESET THE LOOK SETTINGS TO UNDO CHOSEN ANSWER
   		buttons[i].recolor();
   		buttons[i].fontColor="#FFF";
+  		buttons[i].fontSize=btnFontSize;
+  		buttons[i].fontStyle=""+btnFontSize+"px Verdana";
 		
   		buttons[i].text=msg.answer[i];
-  	
+  		
+  		
   		//THIS GETS THE LENGTH OF THE LONGEST BUTTON
+  		
   		longestButton=Math.max(buttons[i].getWidth(),longestButton);
+  		
   	}
     answerChosen=-1;
     handleResize();
@@ -107,49 +107,78 @@ var main = function(
   //This is what happen when the player class sends back whether or not the answer was correct
   function handleAnswerFeedback(msg)
   {
-  	for (var i = 0; i < buttons.length; i++) 
+  console.log("Answer type="+msg.answerType);
+  	if (msg.answerType == "correct" || msg.answerType == "incorrect")
   	{
-  	
-  		//Change all of the answers to neutral
-  		buttons[i].fillColor1=btnNeutralFillColor;
-  		buttons[i].fillColor2=btnNeutralFillColor;
-  	}
-  	
-  	if (msg.answerType == "correct")
-  	{
-  		 //then change the one chosen to be green if correct
-  		 buttons[answerChosen].fillColor1=btnCorrectFillColor;
-  		 buttons[answerChosen].fillColor2=btnCorrectFillColor;
- 	}
- 	else 
- 	{
- 		//or red if incorrect 
- 		buttons[answerChosen].fillColor1=btnIncorrectFillColor;
- 		buttons[answerChosen].fillColor2=btnIncorrectFillColor;
- 	}
- 	this.score = msg.newScore; //also, record the score
- 	handleResize(); //this will redraw everything
+  		for (var i = 0; i < buttons.length; i++) 
+  		{
+			//Change all of the answers to neutral
+			buttons[i].fillColor1=btnNeutralFillColor;
+			buttons[i].fillColor2=btnNeutralFillColor;
+		}
+	
+		if (msg.answerType == "correct")
+		{
+			 //then change the one chosen to be green if correct
+			 buttons[answerChosen].fillColor1=btnCorrectFillColor;
+			 buttons[answerChosen].fillColor2=btnCorrectFillColor;
+		}
+		else if (msg.answerType == "incorrect")
+		{
+			//or red if incorrect 
+			buttons[answerChosen].fillColor1=btnIncorrectFillColor;
+			buttons[answerChosen].fillColor2=btnIncorrectFillColor;
+		}
+	}
+	else if (msg.answerType == "notAllowed") //else if they're not allowed to answer now, reset to the state before answering
+	{
+	 console.log("Answer type NOT ALLOWED");
+		buttons[answerChosen].fillColor1=buttonBaseColors[answerChosen][0];
+		buttons[answerChosen].fillColor2=buttonBaseColors[answerChosen][1];
+		answerChosen=-1;
+	}
+	this.score = msg.newScore; //also, record the score
+	handleResize(); //this will redraw everything
   }
   
   //THIS FUNCTION RESIZES BUTTONS WHEN THE SCREEN SIZE CHANGES
   function handleResize() 
   {
-  	if (topMargin+btmMargin+btnHeight*buttons.length>document.documentElement.clientHeight ||
-  	    longestButton+leftMargin+rightMargin>document.documentElement.clientWidth) //if there's not enough space for all of the buttons
+  	
+	
+	
+	if (document.documentElement.clientHeight>document.documentElement.clientWidth*.75) //if the client is tall
+	{
+	 	scaling=Math.min(.85*document.documentElement.clientWidth/longestButton,.7*document.documentElement.clientHeight/(buttons.length*.72*44));
+    	for (var i = 0; i < buttons.length; i++) //in a 1xN column
+		{
+			buttons[i].xPos=0;
+			buttons[i].yPos=i*document.documentElement.clientHeight/buttons.length;
+			buttons[i].fontSize=btnFontSize*scaling;
+			buttons[i].fontStyle=""+(btnFontSize*scaling)+"px Verdana";
+			buttons[i].btnWidth=document.documentElement.clientWidth;
+			buttons[i].btnHeight=document.documentElement.clientHeight/buttons.length;
+			buttons[i].resize();
+		}
+  	}
+  	else //otherwise if client is wide, draw them in 2 columns of N/2 buttons
   	{
-  		shrink=Math.min(document.documentElement.clientHeight/(topMargin+btmMargin+btnHeight*buttons.length),document.documentElement.clientWidth/(longestButton+leftMargin+rightMargin)); 
-  		//then we're going to shrink to make it fit based on the smaller ratio
-  	} else {shrink=1;}
-
-    for (var i = 0; i < buttons.length; i++) 
-  	{
-  		buttons[i].xPos=0;
-  		buttons[i].yPos=i*document.documentElement.clientHeight/buttons.length;
-  		//buttons[i].fontSize=btnFontSize*shrink;
-  		//buttons[i].fontStyle=""+(btnFontSize*shrink)+"px Verdana";
-  		buttons[i].btnWidth=document.documentElement.clientWidth;
-  	    buttons[i].btnHeight=document.documentElement.clientHeight/buttons.length;
-  		buttons[i].resize();
+  		scaling=Math.min(.85*.5*document.documentElement.clientWidth/longestButton,.7*document.documentElement.clientHeight/(buttons.length*.5*.72*44));
+  		var j=0;
+  		for (var i = 0; i < buttons.length; i++) //in a 1xN column
+		{
+			if (i==buttons.length/2)
+			{
+				j=buttons.length/2;
+			}
+			buttons[i].xPos=Math.floor(i*2/buttons.length)*document.documentElement.clientWidth/2;
+			buttons[i].yPos=(i-j)*document.documentElement.clientHeight/(buttons.length/2);
+			buttons[i].fontSize=btnFontSize*scaling;
+			buttons[i].fontStyle=""+(btnFontSize*scaling)+"px Verdana";
+			buttons[i].btnWidth=document.documentElement.clientWidth/2;
+			buttons[i].btnHeight=document.documentElement.clientHeight/(buttons.length/2);
+			buttons[i].resize();
+		}
   	}
 
   };
@@ -165,7 +194,7 @@ var main = function(
  
   //THESE CONTROL HOW YOUR CONTROLLERS LOOK
   //BUTTONS:
-  var buttonBaseColors=[["#079700","#A6FA87"],["#1873BB","#53C8E9"],["#D415CA","#F27CEA"],["#FA6B16","#F5E333"],["#079700","#A6FA87"],["#1873BB","#53C8E9"]];
+  var buttonBaseColors=[["#079700","#A6FA87"],["#1873BB","#53C8E9"],["#D415CA","#F27CEA"],["#FA6B16","#F5E333"],["#81D100","#D6FF8F"],["#6119FF","#D18FFF"]];
   var btnNeutralFillColor="#F9F4AB"; //Button look options
   var btnNeutralStrokeColor="#D9D367";
   var btnSelectedFillColor="#D3D3D3";
@@ -175,7 +204,7 @@ var main = function(
   var btnFontSize=44;
   var btnWidth=270;
   var btnHeight=70;
-  var shrink=1; //This is for when the screen gets WAAY TOO SMALL. 1=full size, <1 shrunk somewhat
+  var scaling=1; //This is for changing the text width
   //OTHER:
   var topMargin=150;
   var btmMargin=250;
@@ -228,14 +257,10 @@ var main = function(
   
 	var handlePress = function(e) 
 	{
-	  console.log("Handling press at "+e.x+", "+e.y);
 	  if (answerChosen==-1)
 	  {
 	  	for (var i = 0; i < buttons.length; i++)
  	  	{
- 	  	console.log("Button Xpos="+buttons[i].xPos);
- 	  	console.log("Button Width="+buttons[i].getWidth());
- 	  	
  	  		if (buttons[i].xPos<e.x && e.x<buttons[i].xPos+buttons[i].btnWidth && buttons[i].yPos<e.y && e.y<buttons[i].yPos+buttons[i].btnHeight)
  	  		{
  	  			answerChosen=i;

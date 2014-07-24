@@ -58,7 +58,7 @@ define(
   	this.basecolor1="#1873BB";
   	this.basecolor2="#53C8E9";
   	this.fillColor1=this.basecolor1;		//Default look options
-  	this.fillColor2=this.basecolor2;	
+  	this.fillColor2=this.basecolor2;		//Most of these get overwritten in controller.js
   	this.fontSize=44;
   	this.fontStyle=""+this.fontSize+"px Verdana";
   	this.fontColor="#FFF";
@@ -82,9 +82,8 @@ define(
   //THIS FUNCTION RETURNS THE WIDTH OF THE BUTTON
   AnswerButton.prototype.getWidth = function() 
   {
-    var size = this.size;
-    this.ctx.font=this.fontStyle 
-    return this.ctx.measureText(this.text).width+100+this.strokeWidth*2;
+    this.ctx.font=this.fontStyle;
+    return this.ctx.measureText(this.text).width;
   };
  
  AnswerButton.prototype.drawButton = function(data) 
@@ -114,7 +113,8 @@ define(
       this.ctx.font=this.fontStyle;
       this.ctx.fillStyle = this.fontColor;
       this.ctx.textAlign = 'center';
-      this.ctx.fillText(this.text,this.xPos+this.btnWidth/2+50,this.yPos+(this.fontSize-10+this.btnHeight)/2);
+      this.ctx.fillText(this.text,this.xPos+this.btnWidth/2,this.yPos+this.btnHeight/2+this.fontSize*.72/2); 
+      //The .72 here is my height conversion factor for Verdana. Verdana capital letters are ~72% of the font size high in pixels
       this.ctx.restore();
    		
     }
