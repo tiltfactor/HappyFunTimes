@@ -64,6 +64,7 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
       this.shootTimer = 0;
       this.shots = [];
       this.correctAnswer = "";
+      this.hasAnswered=1; //1=yes, 0=no. This is used to check if all the players have answered. If so, we should speed up the countdown
 
       this.setState('color');
     };
@@ -107,6 +108,7 @@ define(['../../scripts/2d', './shot',  '../../../scripts/misc/gamebutton'], func
   
   Player.prototype.handleAnswer = function(msg) 
   {
+  this.hasAnswered=1;
   var globals = this.services.globals;
   console.log("Handling answer! Correct answer is: "+this.correctAnswer);
   	 if (this.correctAnswer == "") //if the correct answer is null, prevent the player from answering

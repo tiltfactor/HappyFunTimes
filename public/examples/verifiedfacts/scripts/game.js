@@ -254,7 +254,21 @@ questions[9]=["This is a fake question to see the size of the answers","C","A","
     //THIS IS THE GAME ACTUALLY RUNNING
     if (state == "playing")
     {
-    
+    	
+    	//Check to see if all the players have answered
+    	var allHaveAnswered = 1;
+    	for (var ii = 0; ii<g_playerManager.players.length; ++ii)
+    	{
+    		allHaveAnswered = Math.min(allHaveAnswered, g_playerManager.players[ii].hasAnswered)
+    		if (allHaveAnswered == 0) {break;}
+    	}
+    	if (allHaveAnswered == 1)  //If they all answered
+    	{
+    		if (getTimeLeft()>10000) //And there are more than ten seconds left
+    		{
+    			setTimeLeft(5000); //Jump to 5 seconds left
+    		}
+    	}
        
     
     	//Draw the score podium
@@ -359,10 +373,11 @@ questions[9]=["This is a fake question to see the size of the answers","C","A","
   	var rightAnswer = correctAnswer(questions[questionNumber]);
   	for (var ii = 0; ii<g_playerManager.players.length; ++ii)
     {
- 	 	g_playerManager.players[ii].netPlayer.sendCmd('newQuestion', {answer: currentAnswers});
- 	 	g_playerManager.players[ii].correctAnswer = rightAnswer;
- 	 	g_playerManager.players[ii].color = "#D3D3D3";
- 	 	g_playerManager.players[ii].position = [600-100*ii,590];
+ 	 	g_playerManager.players[ii].netPlayer.sendCmd('newQuestion', {answer: currentAnswers}); //send the CONTROLLER the answers for this question
+ 	 	g_playerManager.players[ii].correctAnswer = rightAnswer; //send the player object the correct answer
+ 	 	g_playerManager.players[ii].color = "#D3D3D3"; //reset the player avatar color
+ 	 	g_playerManager.players[ii].position = [600-100*ii,590]; //put the player avatar OFF of the podium
+ 	 	g_playerManager.players[ii].hasAnswered = 0; //so that we know they haven't answered yet.
     }
   }
   
@@ -391,13 +406,24 @@ questions[9]=["This is a fake question to see the size of the answers","C","A","
   
   
   
-  //FUNCTIONS BELOW THIS POINT ARE GENERIC DATA MANIPULATION
+ 
   
   //returns time left in this question in milliseconds
   function getTimeLeft()
   {
   	return (globals.questionDuration*1000-(getGameTime()-questionStartTime));
   }
+  
+  //sets the time left in this question to the sent value (in milliseconds)
+  //this will cause the timer to jump
+  function setTimeLeft(newTimeLeft)
+  {
+  	questionStartTime = getGameTime()+newTimeLeft-globals.questionDuration*1000;
+  }
+  
+  
+   //FUNCTIONS BELOW THIS POINT ARE GENERIC DATA MANIPULATION
+  
   
   //returns the index of the space nearest to a specified index. Returns last char if no spaces
   function findNearestSpace(someString, index)
